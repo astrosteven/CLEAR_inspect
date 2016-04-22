@@ -49,10 +49,10 @@ pro displayband,wind,tindex,fobj,bstamp,vstamp,istamp,i814stamp,zstamp,ystamp,js
 end
 ;***************************************************************************************
 ;***************************************************************************************
-pro plot2d,field,fobj,tindex,scl_2d_lo,scl_2d_hi
+pro plot2d,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi
   wset,4 & loadct,0,/silent
   ;1D stack
-  stack_1D=findfile('Files/Spectra/'+field+'/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*1D.fits')
+  stack_1D=findfile(specpath+field+'/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*1D.fits')
   ftab_ext,stack_1d,[1,2,3,4,7],lam1d,flux1d,dflux1d,contam1d,sens
   !p.multi=[0,1,3]
   plot,lam1d/1.0d4,flux1d,position=[0.0925,0.15,0.94,0.48],xtit='Wavelength (um)',ytit='Flux (e!U-!N/s)',charsize=3
@@ -62,7 +62,7 @@ pro plot2d,field,fobj,tindex,scl_2d_lo,scl_2d_hi
   oplot,lam1d/1.0d4,flux1d
   wset,4 & loadct,0,/silent
   ;2D stack
-  stack_2d=findfile('Files/Spectra/'+field+'/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*2D.fits')
+  stack_2d=findfile(specpath+field+'/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*2D.fits')
   sci2d=readfits(stack_2d,ext=5,head2d,/silent) & wht2d=readfits(stack_2d,ext=6,/silent) & model2d=readfits(stack_2d,ext=7,/silent)
   contam2d=readfits(stack_2d,ext=8,/silent) & lam2d=readfits(stack_2d,ext=9,/silent) & trace2d=readfits(stack_2d,ext=11,/silent)
   pos=[0.09,0.74,0.94,0.99] & makeplot,pos,sci2d
@@ -84,10 +84,10 @@ pro plot2d,field,fobj,tindex,scl_2d_lo,scl_2d_hi
 end
 ;***************************************************************************************
 ;***************************************************************************************
-pro plotpas,field,fobj,tindex,scl_2d_lo,scl_2d_hi
+pro plotpas,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi
 ;Individual PAs
 wset,5 & loadct,0,/silent
-pas=findfile('Files/Spectra/'+field+'/'+field+'-*-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'.2D.fits')
+pas=findfile(specpath+field+'/'+field+'-*-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'.2D.fits')
 !p.multi=[0,1,6]
 for p=0,n_elements(pas)-1 do begin
    temp=strsplit(pas(p),'-',/extract)
@@ -108,10 +108,13 @@ endfor
 end
 ;***************************************************************************************
 ;***************************************************************************************
-pro inspect_clear,zsample=zsample,field=field
+pro inspect_clear,field,zsample=zsample,specpath=specpath
+  if not keyword_set(specpath) then specpath='Files/Spectra/'
   if not keyword_set(zsample) then zsample=7l
   if zsample eq 6 or zsample eq 7 or zsample eq 8 then zsamp='678'
   if zsample eq 4 or zsample eq 4 or zsample eq 8 then zsamp='45'
+
+  stop
   print,' '
   print,'##########################################'
   print,'Reading in objects for Field '+field+' for z='+zsamp
@@ -206,8 +209,8 @@ endfor
 ;###################################
 
 ;########## Plot Spectra ###########
-plot2d,field,fobj,tindex,s1_2d,s2_2d
-plotpas,field,fobj,tindex,s1_2d,s2_2d
+plot2d,specpath,field,fobj,tindex,s1_2d,s2_2d
+plotpas,specpath,field,fobj,tindex,s1_2d,s2_2d
 ;###################################
 
 
@@ -264,7 +267,7 @@ if comm eq 'skipsample' then begin
 endif
 
 if comm eq 'png' then begin
-   temp=findfile('Files/Spectra/'+field+'/*'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*stack.png')
+   temp=findfile(specpath+field+'/*'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*stack.png')
    spawn,'open '+temp & delvarx,temp
    comm='done'
 endif
@@ -298,8 +301,8 @@ if comm eq 'soft' or comm eq 'hard' or comm eq 'stretch' then begin
 endif
 
 if comm eq 'soft2d' or comm eq 'hard2d' or comm eq 'stretch2d' then begin
-   plot2d,field,fobj,tindex,s1_2d,s2_2d
-   plotpas,field,fobj,tindex,s1_2d,s2_2d
+   plot2d,specpath,field,fobj,tindex,s1_2d,s2_2d
+   plotpas,specpath,field,fobj,tindex,s1_2d,s2_2d
 endif
 
 if (comm eq 'good' or comm eq 'g') then begin
