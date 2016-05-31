@@ -114,7 +114,6 @@ pro inspect_clear,field,zsample=zsample,specpath=specpath
   if zsample eq 6 or zsample eq 7 or zsample eq 8 then zsamp='678'
   if zsample eq 4 or zsample eq 4 or zsample eq 8 then zsamp='45'
 
-  stop
   print,' '
   print,'##########################################'
   print,'Reading in objects for Field '+field+' for z='+zsamp
