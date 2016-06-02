@@ -49,7 +49,7 @@ pro displayband,wind,tindex,fobj,bstamp,vstamp,istamp,i814stamp,zstamp,ystamp,js
 end
 ;***************************************************************************************
 ;***************************************************************************************
-pro plot2d,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi
+pro plot2d,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi,gaussfit=gaussfit
   wset,4 & loadct,0,/silent
   ;1D stack
   stack_1D=findfile(specpath+field+'/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*1D.fits')
@@ -60,6 +60,12 @@ pro plot2d,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi
   polyfill,0.1216d0*(1.0d0+[fobj.zphot_l68(tindex),fobj.zphot_u68(tindex),fobj.zphot_u68(tindex),fobj.zphot_l68(tindex)]),[!y.crange[0],!y.crange[0],!y.crange[1],!y.crange[1]],color=fsc_color('blu8')
   oploterror,lam1d/1.0d4,flux1d,dflux1d,thick=0.5,color=fsc_color('red6'),/nohat
   oplot,lam1d/1.0d4,flux1d
+
+  ; CJP HACK: 
+  if keyword_set(gaussfit) then begin
+     oplot, gaussfit.lam/1e4, gaussfit.fit, color=djs_icolor('yellow'), thick=1
+  endif
+
   wset,4 & loadct,0,/silent
   ;2D stack
   stack_2d=findfile(specpath+field+'/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*2D.fits')
@@ -70,6 +76,12 @@ pro plot2d,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi
   oplot,trace2d,color=djs_icolor('yellow'),line=1,thick=3 & loadct,0,/silent
   plots,findel(lam2d,8000.0d0),!y.crange,line=2,color=djs_icolor('yellow'),thick=1
   plots,findel(lam2d,8500.0d0),!y.crange,line=2,color=djs_icolor('yellow'),thick=1
+
+  ; CJP HACK:
+  if keyword_set(gaussfit) then begin
+     plots, findel(lam2d,(1+gaussfit.z)*1216.),!y.crange, line=1, color=djs_icolor('red'),thick=1
+  endif
+
   plots,findel(lam2d,9000.0d0),!y.crange,line=2,color=djs_icolor('yellow'),thick=1
   plots,findel(lam2d,9500.0d0),!y.crange,line=2,color=djs_icolor('yellow'),thick=1
   plots,findel(lam2d,10000.0d0),!y.crange,line=2,color=djs_icolor('yellow'),thick=1
@@ -114,6 +126,7 @@ pro inspect_clear,field,zsample=zsample,specpath=specpath
   if zsample eq 6 or zsample eq 7 or zsample eq 8 then zsamp='678'
   if zsample eq 4 or zsample eq 4 or zsample eq 8 then zsamp='45'
 
+  ;stop
   print,' '
   print,'##########################################'
   print,'Reading in objects for Field '+field+' for z='+zsamp
@@ -226,12 +239,20 @@ while comm ne 'done' do begin
       print,'skip = give index of object to skip to'
       print,'skipid = give ID of object to skip to'
       print,'png = open 3DHST pipeline PNG'
+      print,'fitline = fit gaussian, will query for lambda and fwhm in angstroms (experimental)'
       print,'p/previous or n/next = skip to previous or next object in list'
       print,'skipsample = skip to 1st object in a sample: takes 4,5,6,7 or 8'
       print,'good, bad or fixapcorr = record result for this object'
       print,'quit = save and quit'
    endif
 ;###################################
+
+if comm eq 'fitline' then begin
+   read,'Central wavelength / angstroms =',lam_c
+   read,'FWHM / angstroms = ', fwhm
+   cjpfitline, specpath, field, fobj, tindex, lam_c, fwhm, gaussfit=gaussfit
+   plot2d,specpath,field,fobj,tindex,s1_2d,s2_2d, gaussfit=gaussfit
+endif
 
 if comm eq 'skip' then begin
    read,'Skip to index #: ',skip
