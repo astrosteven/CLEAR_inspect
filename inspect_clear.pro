@@ -121,6 +121,7 @@ end
 ;***************************************************************************************
 ;***************************************************************************************
 pro inspect_clear,field,zsample=zsample,specpath=specpath
+  print,'hi'
   if not keyword_set(specpath) then specpath='Files/Spectra/'
   if not keyword_set(zsample) then zsample=7l
   if zsample eq 6 or zsample eq 7 or zsample eq 8 then zsamp='678'
