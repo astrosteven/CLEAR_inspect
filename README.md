@@ -8,9 +8,11 @@ This GitHub directory contains the IDL inspection tool (inspect_clear.pro), as w
 
 To run the inspection tool:
 - Download the latest version from GitHub
-- Download the latest reduction of the CLEAR spectra from the Google Site data repository
-  - We decided to put these in folders based on the month they were reduced
-    - Right now, mar2016 is the current reduction for GS1, GS2, GS3 and GS5
+#- Download the latest reduction of the CLEAR spectra from the Google Site data repository
+#  - We decided to put these in folders based on the month they were reduced
+#    - Right now, mar2016 is the current reduction for GS1, GS2, GS3 and GS5
+- Download the latest reduction of the CLEAR spectra from the STScI repository:
+     - https://archive.stsci.edu/pub/clear_team/
 - Make a local Spectra directory, and inside that, make a subdirectory for each field (e.g., GS1, etc.)
   - The default location for these is at Files/Spectra/fieldname (where fieldname is, for example, GS1), though you can place
 them anywhere, and set the flag "specpath" when you run the inspection tool
