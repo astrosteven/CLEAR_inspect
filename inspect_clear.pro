@@ -52,7 +52,7 @@ end
 pro plot2d,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi,gaussfit=gaussfit
   wset,4 & loadct,0,/silent
   ;1D stack
-  stack_1D=findfile(specpath+field+'/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*1D.fits')
+  stack_1D=findfile(specpath+field+'*/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*1D.fits')
   ftab_ext,stack_1d,[1,2,3,4,7],lam1d,flux1d,dflux1d,contam1d,sens
   !p.multi=[0,1,3]
   plot,lam1d/1.0d4,flux1d,position=[0.0925,0.15,0.94,0.48],xtit='Wavelength (um)',ytit='Flux (e!U-!N/s)',charsize=3
@@ -68,7 +68,7 @@ pro plot2d,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi,gaussfit=gaussfit
 
   wset,4 & loadct,0,/silent
   ;2D stack
-  stack_2d=findfile(specpath+field+'/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*2D.fits')
+  stack_2d=findfile(specpath+field+'*/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*2D.fits')
   sci2d=readfits(stack_2d,ext=5,head2d,/silent) & wht2d=readfits(stack_2d,ext=6,/silent) & model2d=readfits(stack_2d,ext=7,/silent)
   contam2d=readfits(stack_2d,ext=8,/silent) & lam2d=readfits(stack_2d,ext=9,/silent) & trace2d=readfits(stack_2d,ext=11,/silent)
   pos=[0.09,0.74,0.94,0.99] & makeplot,pos,sci2d
@@ -99,7 +99,8 @@ end
 pro plotpas,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi
 ;Individual PAs
 wset,5 & loadct,0,/silent
-pas=findfile(specpath+field+'/'+field+'-*-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'.2D.fits')
+pas=findfile(specpath+field+'*/'+field+'-*-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'.2D.fits')
+
 !p.multi=[0,1,6]
 for p=0,n_elements(pas)-1 do begin
    temp=strsplit(pas(p),'-',/extract)
@@ -327,7 +328,7 @@ endif
 
 if (comm eq 'good' or comm eq 'g') then begin
    print,'Setting object as good...'
-   wset,0 & erase & wset,1 & erase & wset,2 & erase
+   wset,3 & erase & wset,1 & erase & wset,2 & erase
    result.inspect(tindex)=1 & result.apcorr(tindex)=-1.0d0
    read,'Notes?  Only a few words please:  ',notes
    result.notes(tindex)=notes & tindex=tindex+1
@@ -338,7 +339,7 @@ if (comm eq 'bad' or comm eq 'b') then begin
    result.inspect(tindex)=0 & result.apcorr(tindex)=-1.0d0
    read,'Notes?  Only a few words please:  ',notes
    result.notes(tindex)=notes & tindex=tindex+1
-   wset,0 & erase & wset,1 & erase & wset,2 & erase
+   wset,3 & erase & wset,1 & erase & wset,2 & erase
    comm='done'
 endif
 

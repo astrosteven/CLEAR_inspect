@@ -13,10 +13,9 @@ To run the inspection tool:
 #    - Right now, mar2016 is the current reduction for GS1, GS2, GS3 and GS5
 - Download the latest reduction of the CLEAR spectra from the STScI repository:
      - https://archive.stsci.edu/pub/clear_team/
-- Make a local Spectra directory, and inside that, make a subdirectory for each field (e.g., GS1, etc.)
-  - The default location for these is at Files/Spectra/fieldname (where fieldname is, for example, GS1), though you can place
+- Make a local Spectra directory, and inside that, unzip and untar each of the ~few dozen data directories (do not combine those for the same field, just leave them separate)
+  - The default location for these is at Files/Spectra/ , though you can place
 them anywhere, and set the flag "specpath" when you run the inspection tool
-- Take the downloaded tarballs, and unpack them in their appropriate field directory
 - Go to the top directory (where inspect_clear.pro) is, and run IDL
 - Run the tool by typing: inspect_clear,fieldname
   - Where fieldname is the field you want to inspect, typed as a string.  For example:  inspect_clear,'GS1'
