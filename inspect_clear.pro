@@ -49,12 +49,19 @@ pro displayband,wind,tindex,fobj,bstamp,vstamp,istamp,i814stamp,zstamp,ystamp,js
 end
 ;***************************************************************************************
 ;***************************************************************************************
-pro plot2d,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi,gaussfit=gaussfit
+pro plot2d,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi,subcontam,gaussfit=gaussfit
   wset,4 & loadct,0,/silent
+
+  print,' ' & if subcontam eq 'no' then print,'Not contamination subtracted' & print,' '
+  print,' ' & if subcontam eq 'yes' then print,'Contamination subtracted' & print,' '
+
+
   ;1D stack
-  stack_1D=findfile(specpath+field+'*/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*1D.fits')
+  stack_1D=findfile(specpath+field+'*/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I10)')+'*1D.fits')
   ftab_ext,stack_1d,[1,2,3,4,7],lam1d,flux1d,dflux1d,contam1d,sens
   !p.multi=[0,1,3]
+  g=where(flux1d ge -1.0d10 and flux1d le 1.0d10)
+  if min(g) ge 0.0d0 then begin
   plot,lam1d/1.0d4,flux1d,position=[0.0925,0.15,0.94,0.48],xtit='Wavelength (um)',ytit='Flux (e!U-!N/s)',charsize=3
   polyfill,0.1216d0*(1.0d0+[fobj.zphot_l95(tindex),fobj.zphot_u95(tindex),fobj.zphot_u95(tindex),fobj.zphot_l95(tindex)]),[!y.crange[0],!y.crange[0],!y.crange[1],!y.crange[1]],color=fsc_color('blu6')
   polyfill,0.1216d0*(1.0d0+[fobj.zphot_l68(tindex),fobj.zphot_u68(tindex),fobj.zphot_u68(tindex),fobj.zphot_l68(tindex)]),[!y.crange[0],!y.crange[0],!y.crange[1],!y.crange[1]],color=fsc_color('blu8')
@@ -65,14 +72,15 @@ pro plot2d,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi,gaussfit=gaussfit
   if keyword_set(gaussfit) then begin
      oplot, gaussfit.lam/1e4, gaussfit.fit, color=djs_icolor('yellow'), thick=1
   endif
-
+  endif
   wset,4 & loadct,0,/silent
   ;2D stack
-  stack_2d=findfile(specpath+field+'*/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*2D.fits')
+  stack_2d=findfile(specpath+field+'*/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I10)')+'*2D.fits')
   sci2d=readfits(stack_2d,ext=5,head2d,/silent) & wht2d=readfits(stack_2d,ext=6,/silent) & model2d=readfits(stack_2d,ext=7,/silent)
   contam2d=readfits(stack_2d,ext=8,/silent) & lam2d=readfits(stack_2d,ext=9,/silent) & trace2d=readfits(stack_2d,ext=11,/silent)
   pos=[0.09,0.74,0.94,0.99] & makeplot,pos,sci2d
-  pos=[0.065,0.74,0.965,0.99] & simdisp,bytscl(sci2d,scl_2d_lo,scl_2d_hi),position=pos
+  pos=[0.065,0.74,0.965,0.99]
+  if subcontam eq 'yes' then simdisp,bytscl(sci2d-contam2d,scl_2d_lo,scl_2d_hi),position=pos else simdisp,bytscl(sci2d,scl_2d_lo,scl_2d_hi),position=pos
   oplot,trace2d,color=djs_icolor('yellow'),line=1,thick=3 & loadct,0,/silent
   plots,findel(lam2d,8000.0d0),!y.crange,line=2,color=djs_icolor('yellow'),thick=1
   plots,findel(lam2d,8500.0d0),!y.crange,line=2,color=djs_icolor('yellow'),thick=1
@@ -96,14 +104,15 @@ pro plot2d,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi,gaussfit=gaussfit
 end
 ;***************************************************************************************
 ;***************************************************************************************
-pro plotpas,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi
+pro plotpas,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi,subcontam
 ;Individual PAs
 wset,5 & loadct,0,/silent
-pas=findfile(specpath+field+'*/'+field+'-*-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'.2D.fits')
-
+pas=findfile(specpath+field+'*/'+field+'-*-G102_'+strn(fobj.id_3dhst(tindex),F='(I9)')+'.2D.fits')
 !p.multi=[0,1,6]
 for p=0,n_elements(pas)-1 do begin
    temp=strsplit(pas(p),'-',/extract)
+   ;; print,pas(p)
+   ;; print,temp
    label='PA='+temp[1]+'_'+temp[2]
    if p eq 0 then begin & pos1=[0.03,0.73,0.47,0.9] & pos2=[0.01,0.65,0.49,0.99] & endif
    if p eq 1 then begin & pos1=[0.03,0.43,0.47,0.6] & pos2=[0.01,0.35,0.49,0.69] & endif
@@ -111,9 +120,9 @@ for p=0,n_elements(pas)-1 do begin
    if p eq 3 then begin & pos1=[0.53,0.73,0.97,0.9] & pos2=[0.51,0.65,0.99,0.99] & endif
    if p eq 4 then begin & pos1=[0.53,0.43,0.97,0.6] & pos2=[0.51,0.35,0.99,0.69] & endif
    if p eq 5 then begin & pos1=[0.53,0.13,0.97,0.3] & pos2=[0.51,0.05,0.99,0.39] & endif
-   spec=readfits(pas(p),ext=5,/silent) & trace=readfits(pas(p),ext=11,/silent)
+   spec=readfits(pas(p),ext=5,/silent) & trace=readfits(pas(p),ext=11,/silent) & contam=readfits(pas(p),ext=8,/silent)
    makeplot,pos1,spec,label  
-   simdisp,bytscl(spec,scl_2d_lo,scl_2d_hi),position=pos2
+   if subcontam eq 'yes' then simdisp,bytscl(spec-contam,scl_2d_lo,scl_2d_hi),position=pos2 else simdisp,bytscl(spec,scl_2d_lo,scl_2d_hi),position=pos2
    oplot,trace,color=djs_icolor('yellow'),line=1,thick=3 & loadct,0,/silent
    delvarx,spec,trace,pos
 endfor
@@ -127,7 +136,8 @@ pro inspect_clear,field,zsample=zsample,specpath=specpath
   if zsample eq 6 or zsample eq 7 or zsample eq 8 then zsamp='678'
   if zsample eq 4 or zsample eq 4 or zsample eq 8 then zsamp='45'
 
-  ;stop
+  subcontam='no'
+
   print,' '
   print,'##########################################'
   print,'Reading in objects for Field '+field+' for z='+zsamp
@@ -160,7 +170,7 @@ g=min(where(result.inspect eq -1.0)) & if min(g) ge 0 then tindex=g else tindex=
 if keyword_set(start) then tindex=start
 index=dindgen(n_elements(fobj.id_candels))
 while tindex le max(index) do begin
-   print,'Index ='+strn(index(tindex),F='(I5)')+'/'+strn(n_elements(index)-1,F='(I5)')+'; ID='+fobj.id_candels(tindex)
+   print,'Index ='+strn(index(tindex),F='(I9)')+'/'+strn(n_elements(index)-1,F='(I9)')+'; ID='+fobj.id_candels(tindex)+'; 3D HST ID='+strn(fobj.id_3dhst(tindex),F='(I9)')
    if result.inspect(tindex) eq -1.0 then print,'Object not yet classified'
    if result.inspect(tindex) eq 0.0 then print,'Object previously classified as BAD: '+result.notes(tindex)
    if result.inspect(tindex) eq 1.0 then print,'Object previously classified as GOOD'
@@ -177,7 +187,7 @@ displayband,1,tindex,fobj,bstamp,vstamp,istamp,i814stamp,zstamp,ystamp,jstamp,hs
 
 ;############ Plot P(z) ############
 wset,2
-ttitle='CANDELS ID '+fobj.id_candels(tindex)+'; 3DHST ID '+strn(fobj.id_3dhst(tindex),F='(I6)')
+ttitle='CANDELS ID '+fobj.id_candels(tindex)+'; 3DHST ID '+strn(fobj.id_3dhst(tindex),F='(I9)')
 if fobj.zspec(tindex) le 0.0d0 then begin
    plot,fobj.zgrid,fobj.pz(*,tindex),xtit='z',ytit='P(z)',background=djs_icolor('white'),color=djs_icolor('black'),charsize=1.3,title=ttitle
    if fobj.zspec(tindex) gt 0.0d0 then plots,fobj.zspec(tindex),!y.crange,thick=2,line=2
@@ -222,8 +232,8 @@ endfor
 ;###################################
 
 ;########## Plot Spectra ###########
-plot2d,specpath,field,fobj,tindex,s1_2d,s2_2d
-plotpas,specpath,field,fobj,tindex,s1_2d,s2_2d
+plot2d,specpath,field,fobj,tindex,s1_2d,s2_2d,subcontam
+plotpas,specpath,field,fobj,tindex,s1_2d,s2_2d,subcontam
 ;###################################
 
 
@@ -231,6 +241,7 @@ plotpas,specpath,field,fobj,tindex,s1_2d,s2_2d
 while comm ne 'done' do begin
    read,'Command  (type ? for options):  ',comm
    if comm eq '?' then begin
+      print,'c/contam = toggle contamination on and off'
       print,'stretch = set image stretch; pair, e.g. -0.005,0.005'
       print,'stretch2d = set 2D spectrum stretch; pair, e.g. -0.005,0.005'
       print,'hard = harden image stretch'
@@ -248,11 +259,20 @@ while comm ne 'done' do begin
    endif
 ;###################################
 
+if comm eq 'c' or comm eq 'contam' then begin
+   temp=subcontam
+   if temp eq 'no' then subcontam='yes'
+   if temp eq 'yes' then subcontam='no'
+   delvarx,temp
+   plot2d,specpath,field,fobj,tindex,s1_2d,s2_2d,subcontam
+   plotpas,specpath,field,fobj,tindex,s1_2d,s2_2d,subcontam
+endif
+
 if comm eq 'fitline' then begin
    read,'Central wavelength / angstroms =',lam_c
    read,'FWHM / angstroms = ', fwhm
-   cjpfitline, specpath, field, fobj, tindex, lam_c, fwhm, gaussfit=gaussfit
-   plot2d,specpath,field,fobj,tindex,s1_2d,s2_2d, gaussfit=gaussfit
+   cjpfitline, specpath, field, fobj, tindex, lam_c, fwhm,gaussfit=gaussfit
+   plot2d,specpath,field,fobj,tindex,s1_2d,s2_2d,subcontam,gaussfit=gaussfit
 endif
 
 if comm eq 'skip' then begin
@@ -288,7 +308,7 @@ if comm eq 'skipsample' then begin
 endif
 
 if comm eq 'png' then begin
-   temp=findfile(specpath+field+'/*'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*stack.png')
+   temp=findfile(specpath+field+'/*'+strn(fobj.id_3dhst(tindex),F='(I9)')+'*stack.png')
    spawn,'open '+temp & delvarx,temp
    comm='done'
 endif
@@ -322,8 +342,8 @@ if comm eq 'soft' or comm eq 'hard' or comm eq 'stretch' then begin
 endif
 
 if comm eq 'soft2d' or comm eq 'hard2d' or comm eq 'stretch2d' then begin
-   plot2d,specpath,field,fobj,tindex,s1_2d,s2_2d
-   plotpas,specpath,field,fobj,tindex,s1_2d,s2_2d
+   plot2d,specpath,field,fobj,tindex,s1_2d,s2_2d,subcontam
+   plotpas,specpath,field,fobj,tindex,s1_2d,s2_2d,subcontam
 endif
 
 if (comm eq 'good' or comm eq 'g') then begin

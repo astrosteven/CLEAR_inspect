@@ -1,6 +1,8 @@
 # CLEAR_inspect
 Inspection tool for HST CLEAR program
 
+--Update: Jan 27, 2017:  Command "comm" or "c" will toggle on and off contamination subtraction for the combination and the individual PAs
+
 This GitHub directory contains the IDL inspection tool (inspect_clear.pro), as well as a "Files" directory, which includes:
 - pro: this contains procedures needed by the tool, and needs to be placed in your IDL path
 - filters: this contains HST filter curves, which are used by the tool
