@@ -19,6 +19,7 @@ pro cjpfitline, specpath, field, fobj, tindex, lam_c, fwhm, gaussfit=gaussfit
 
   ;read in 1D stack spectrum:
   stack_1D=findfile(specpath+'COMBINED/1D/FITS/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I10)')+'*1D.fits')
+
   ftab_ext,stack_1d,[1,2,3,4,7],lam, flux, fluxerr, contam, sens
 
   params = [0.0, lam_c, fwhm/2.35, 0.02/sqrt(2*!pi*fwhm^2/2.35^2)]
@@ -33,13 +34,18 @@ pro cjpfitline, specpath, field, fobj, tindex, lam_c, fwhm, gaussfit=gaussfit
   parinfo[2].limits[0] = 0.0
   
 
-  t =where( abs(lam - lam_c) lt (fwhm*4 > 200.))
-
-  res = mpfitfun('mygauss', lam[t], flux[t], fluxerr[t], params, perror=paramsErr,/quiet, parinfo=parinfo)
+  t =where( abs(lam - lam_c) lt (fwhm*4 > 200.) and finite(flux))
+  if t[0] ne -1 then begin
+  
+     res = mpfitfun('mygauss', lam[t], flux[t], fluxerr[t], params, perror=paramsErr,/quiet, parinfo=parinfo)
+  endif else begin
+     print,'% no valid wavelength points'
+     return
+  endelse
   print, '% CJPFITLINE:  continuum / flux = ',res[0],'+/-',paramsErr[0]
   print, '% CJPFITLINE:  central wavelength / Angstrom = ',res[1],'+/-',paramsErr[1]
   print, '% CJPFITLINE:  FWHM / Angstrom =', abs(res[2])*2.35, '+/-', paramsErr[2]*2.35
   print, '% CJPFITLINE:  Ly-alpha redshift = ',res[1]/1216.-1.,'+/-',paramsErr[1]/1216.
   gaussfit = { lam: lam[t], fit: mygauss(lam[t], res), z: res[1]/1216.-1.}
-
+     
 end

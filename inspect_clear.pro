@@ -121,7 +121,10 @@ pas=findfile(specpath+'all/*-*-G102_'+strn(fobj.id_3dhst(tindex),F='(I9)')+'.2D.
 
 !p.multi=[0,1,6]
 if ~strcmp(pas[0],'') then begin
-   for p=0,n_elements(pas)-1 do begin
+   npas = n_elements(pas) < 6
+   if n_elements(pas) gt 6 then $
+      print,'% NOTE - there are more than 6 PAs for this one!!!'
+   for p=0,npas-1 do begin
       temp=strsplit(pas(p),'-',/extract)
       ;; print,pas(p)
       ;; print,temp
@@ -321,7 +324,7 @@ if comm eq 'skipsample' then begin
 endif
 
 if comm eq 'png' then begin
-   temp=findfile(specpath+'/2D/PNG/*'+strn(fobj.id_3dhst(tindex),F='(I9)')+'*stack.png')
+   temp=findfile(specpath+'COMBINED/2D/PNG/*'+strn(fobj.id_3dhst(tindex),F='(I9)')+'*stack.png')
    spawn,'open '+temp & delvarx,temp
    comm='done'
 endif
