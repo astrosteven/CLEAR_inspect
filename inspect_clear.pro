@@ -55,18 +55,26 @@ pro plot2d,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi,subcontam,gaussfit=gau
   print,' ' & if subcontam eq 'no' then print,'Not contamination subtracted' & print,' '
   print,' ' & if subcontam eq 'yes' then print,'Contamination subtracted' & print,' '
 
-
   ;1D stack
-  stack_1D=findfile(specpath+field+'*/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I10)')+'*1D.fits')
+;  stack_1D=findfile(specpath+field+'*/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I10)')+'*1D.fits')
+  stack_1D=findfile(specpath+'COMBINED/1D/FITS/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I10)')+'*1D.fits')
   ftab_ext,stack_1d,[1,2,3,4,7],lam1d,flux1d,dflux1d,contam1d,sens
   !p.multi=[0,1,3]
   g=where(flux1d ge -1.0d10 and flux1d le 1.0d10)
   if min(g) ge 0.0d0 then begin
-  plot,lam1d/1.0d4,flux1d,position=[0.0925,0.15,0.94,0.48],xtit='Wavelength (um)',ytit='Flux (e!U-!N/s)',charsize=3
+
+     plot,lam1d/1.0d4,flux1d,position=[0.0925,0.15,0.94,0.48],xtit='Wavelength (um)',ytit='Flux (e!U-!N/s)',charsize=3, /nodata
   polyfill,0.1216d0*(1.0d0+[fobj.zphot_l95(tindex),fobj.zphot_u95(tindex),fobj.zphot_u95(tindex),fobj.zphot_l95(tindex)]),[!y.crange[0],!y.crange[0],!y.crange[1],!y.crange[1]],color=fsc_color('blu6')
   polyfill,0.1216d0*(1.0d0+[fobj.zphot_l68(tindex),fobj.zphot_u68(tindex),fobj.zphot_u68(tindex),fobj.zphot_l68(tindex)]),[!y.crange[0],!y.crange[0],!y.crange[1],!y.crange[1]],color=fsc_color('blu8')
-  oploterror,lam1d/1.0d4,flux1d,dflux1d,thick=0.5,color=fsc_color('red6'),/nohat
-  oplot,lam1d/1.0d4,flux1d
+  if subcontam eq 'yes' then  $
+     oploterror,lam1d/1.0d4,flux1d-contam1d,dflux1d,thick=0.5,color=fsc_color('red6'),/nohat $
+  else $
+     oploterror,lam1d/1.0d4,flux1d,dflux1d,thick=0.5,color=fsc_color('red6'),/nohat
+     
+  if subcontam eq 'yes' then  $
+     oplot,lam1d/1.0d4,flux1d-contam1d $
+  else $
+     oplot,lam1d/1.0d4,flux1d
 
   ; CJP HACK: 
   if keyword_set(gaussfit) then begin
@@ -75,7 +83,8 @@ pro plot2d,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi,subcontam,gaussfit=gau
   endif
   wset,4 & loadct,0,/silent
   ;2D stack
-  stack_2d=findfile(specpath+field+'*/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I10)')+'*2D.fits')
+;  stack_2d=findfile(specpath+field+'*/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I10)')+'*2D.fits')
+  stack_2d=findfile(specpath+'COMBINED/2D/FITS/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I10)')+'*2D.fits')
   sci2d=readfits(stack_2d,ext=5,head2d,/silent) & wht2d=readfits(stack_2d,ext=6,/silent) & model2d=readfits(stack_2d,ext=7,/silent)
   contam2d=readfits(stack_2d,ext=8,/silent) & lam2d=readfits(stack_2d,ext=9,/silent) & trace2d=readfits(stack_2d,ext=11,/silent)
   pos=[0.09,0.74,0.94,0.99] & makeplot,pos,sci2d
@@ -107,25 +116,29 @@ end
 pro plotpas,specpath,field,fobj,tindex,scl_2d_lo,scl_2d_hi,subcontam
 ;Individual PAs
 wset,5 & loadct,0,/silent
-pas=findfile(specpath+field+'*/'+field+'-*-G102_'+strn(fobj.id_3dhst(tindex),F='(I9)')+'.2D.fits')
+;pas=findfile(specpath+field+'*/'+field+'-*-G102_'+strn(fobj.id_3dhst(tindex),F='(I9)')+'.2D.fits')
+pas=findfile(specpath+'all/*-*-G102_'+strn(fobj.id_3dhst(tindex),F='(I9)')+'.2D.fits')
+
 !p.multi=[0,1,6]
-for p=0,n_elements(pas)-1 do begin
-   temp=strsplit(pas(p),'-',/extract)
-   ;; print,pas(p)
-   ;; print,temp
-   label='PA='+temp[1]+'_'+temp[2]
-   if p eq 0 then begin & pos1=[0.03,0.73,0.47,0.9] & pos2=[0.01,0.65,0.49,0.99] & endif
-   if p eq 1 then begin & pos1=[0.03,0.43,0.47,0.6] & pos2=[0.01,0.35,0.49,0.69] & endif
-   if p eq 2 then begin & pos1=[0.03,0.13,0.47,0.3] & pos2=[0.01,0.05,0.49,0.39] & endif
-   if p eq 3 then begin & pos1=[0.53,0.73,0.97,0.9] & pos2=[0.51,0.65,0.99,0.99] & endif
-   if p eq 4 then begin & pos1=[0.53,0.43,0.97,0.6] & pos2=[0.51,0.35,0.99,0.69] & endif
-   if p eq 5 then begin & pos1=[0.53,0.13,0.97,0.3] & pos2=[0.51,0.05,0.99,0.39] & endif
-   spec=readfits(pas(p),ext=5,/silent) & trace=readfits(pas(p),ext=11,/silent) & contam=readfits(pas(p),ext=8,/silent)
-   makeplot,pos1,spec,label  
-   if subcontam eq 'yes' then simdisp,bytscl(spec-contam,scl_2d_lo,scl_2d_hi),position=pos2 else simdisp,bytscl(spec,scl_2d_lo,scl_2d_hi),position=pos2
-   oplot,trace,color=djs_icolor('yellow'),line=1,thick=3 & loadct,0,/silent
-   delvarx,spec,trace,pos
-endfor
+if ~strcmp(pas[0],'') then begin
+   for p=0,n_elements(pas)-1 do begin
+      temp=strsplit(pas(p),'-',/extract)
+      ;; print,pas(p)
+      ;; print,temp
+      label='PA='+temp[1]+'_'+temp[2]
+      if p eq 0 then begin & pos1=[0.03,0.73,0.47,0.9] & pos2=[0.01,0.65,0.49,0.99] & endif
+      if p eq 1 then begin & pos1=[0.03,0.43,0.47,0.6] & pos2=[0.01,0.35,0.49,0.69] & endif
+      if p eq 2 then begin & pos1=[0.03,0.13,0.47,0.3] & pos2=[0.01,0.05,0.49,0.39] & endif
+      if p eq 3 then begin & pos1=[0.53,0.73,0.97,0.9] & pos2=[0.51,0.65,0.99,0.99] & endif
+      if p eq 4 then begin & pos1=[0.53,0.43,0.97,0.6] & pos2=[0.51,0.35,0.99,0.69] & endif
+      if p eq 5 then begin & pos1=[0.53,0.13,0.97,0.3] & pos2=[0.51,0.05,0.99,0.39] & endif
+      spec=readfits(pas(p),ext=5,/silent) & trace=readfits(pas(p),ext=11,/silent) & contam=readfits(pas(p),ext=8,/silent)
+      makeplot,pos1,spec,label  
+      if subcontam eq 'yes' then simdisp,bytscl(spec-contam,scl_2d_lo,scl_2d_hi),position=pos2 else simdisp,bytscl(spec,scl_2d_lo,scl_2d_hi),position=pos2
+      oplot,trace,color=djs_icolor('yellow'),line=1,thick=3 & loadct,0,/silent
+      delvarx,spec,trace,pos
+   endfor
+endif
 !p.multi=0
 end
 ;***************************************************************************************
@@ -134,7 +147,7 @@ pro inspect_clear,field,zsample=zsample,specpath=specpath
   if not keyword_set(specpath) then specpath='Files/Spectra/'
   if not keyword_set(zsample) then zsample=7l
   if zsample eq 6 or zsample eq 7 or zsample eq 8 then zsamp='678'
-  if zsample eq 4 or zsample eq 4 or zsample eq 8 then zsamp='45'
+  if zsample eq 4 or zsample eq 5 then zsamp='45'
 
   subcontam='no'
 
@@ -308,7 +321,7 @@ if comm eq 'skipsample' then begin
 endif
 
 if comm eq 'png' then begin
-   temp=findfile(specpath+field+'/*'+strn(fobj.id_3dhst(tindex),F='(I9)')+'*stack.png')
+   temp=findfile(specpath+'/2D/PNG/*'+strn(fobj.id_3dhst(tindex),F='(I9)')+'*stack.png')
    spawn,'open '+temp & delvarx,temp
    comm='done'
 endif

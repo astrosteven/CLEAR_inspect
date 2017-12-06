@@ -1,6 +1,14 @@
 # CLEAR_inspect
 Inspection tool for HST CLEAR program
 
+--Update: Dec 6, 2017:  updated file structure.   Now expects files to
+be in:
+
+./Files/Spectra/COMBINED/2D/FITS/   # all the combined 2D files
+./Files/Spectra/COMBINED/2D/PNG/   # all the combined 2D files
+./Files/Spectra/COMBINED/1D/FITS/   # all teh combined 1D files
+./Files/Spectra/all/      #  all the 1D and 2D files at individual PAs
+
 --Update: Jan 27, 2017:  Command "comm" or "c" will toggle on and off contamination subtraction for the combination and the individual PAs
 
 This GitHub directory contains the IDL inspection tool (inspect_clear.pro), as well as a "Files" directory, which includes:

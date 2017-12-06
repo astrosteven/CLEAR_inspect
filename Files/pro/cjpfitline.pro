@@ -18,7 +18,7 @@ END
 pro cjpfitline, specpath, field, fobj, tindex, lam_c, fwhm, gaussfit=gaussfit
 
   ;read in 1D stack spectrum:
-  stack_1D=findfile(specpath+field+'/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I6)')+'*1D.fits')
+  stack_1D=findfile(specpath+'COMBINED/1D/FITS/'+field+'-G102_'+strn(fobj.id_3dhst(tindex),F='(I10)')+'*1D.fits')
   ftab_ext,stack_1d,[1,2,3,4,7],lam, flux, fluxerr, contam, sens
 
   params = [0.0, lam_c, fwhm/2.35, 0.02/sqrt(2*!pi*fwhm^2/2.35^2)]
