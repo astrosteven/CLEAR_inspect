@@ -5,8 +5,11 @@ Inspection tool for HST CLEAR program
 be in:
 
 ./Files/Spectra/COMBINED/2D/FITS/   # all the combined 2D files
+
 ./Files/Spectra/COMBINED/2D/PNG/   # all the combined 2D files
+
 ./Files/Spectra/COMBINED/1D/FITS/   # all teh combined 1D files
+
 ./Files/Spectra/all/      #  all the 1D and 2D files at individual PAs
 
 --Update: Jan 27, 2017:  Command "comm" or "c" will toggle on and off contamination subtraction for the combination and the individual PAs
