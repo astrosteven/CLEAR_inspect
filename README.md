@@ -21,12 +21,16 @@ This GitHub directory contains the IDL inspection tool (inspect_clear.pro), as w
 
 To run the inspection tool:
 - Download the latest version from GitHub
-#- Download the latest reduction of the CLEAR spectra from the Google Site data repository
-#  - We decided to put these in folders based on the month they were reduced
-#    - Right now, mar2016 is the current reduction for GS1, GS2, GS3 and GS5
-- Download the latest reduction of the CLEAR spectra from the STScI repository:
-     - https://archive.stsci.edu/pub/clear_team/
-- Make a local Spectra directory, and inside that, unzip and untar each of the ~few dozen data directories (do not combine those for the same field, just leave them separate)
+- Download the latest reduction of the CLEAR spectra from the
+archive.stsci.edu site
+-- https://archive.stsci.edu/pub/clear_team/
+- The files will be put in directories like
+-- ./COMBINED/2D/PNG
+-- ./COMBINED/2D/FITS
+-- ./COMBINED/1D/FITS
+-- ./all/
+- and those are where you need to point the inspect_clear.pro code
+  above.  
   - The default location for these is at Files/Spectra/ , though you can place
 them anywhere, and set the flag "specpath" when you run the inspection tool
 - Go to the top directory (where inspect_clear.pro) is, and run IDL
@@ -39,5 +43,13 @@ them anywhere, and set the flag "specpath" when you run the inspection tool
 - The code automatically saves the results as a structure "result"
   - result.inspect is an integer, which is -1 if it hasn't been inspected, is set to 1 for good, and 0 for bad
   - result.notes is a string where you can store some short notes for each object
-  
+
+# - Everything below this line is old.... ignore for now?
+
+Google Site data repository
+#  - We decided to put these in folders based on the month they were reduced
+#    - Right now, mar2016 is the current reduction for GS1, GS2, GS3 and GS5
+- Download the latest reduction of the CLEAR spectra from the STScI repository:
+     - https://archive.stsci.edu/pub/clear_team/
+- Make a local Spectra directory, and inside that, unzip and untar each of the ~few dozen data directories (do not combine those for the same field, just leave them separate)
   
