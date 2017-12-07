@@ -25,21 +25,24 @@ To run the inspection tool:
 archive.stsci.edu site
 -- https://archive.stsci.edu/pub/clear_team/
 - The files will be put in directories like
--- ./COMBINED/2D/PNG
--- ./COMBINED/2D/FITS
--- ./COMBINED/1D/FITS
--- ./all/
+  - ./COMBINED/2D/PNG
+  - ./COMBINED/2D/FITS
+  - ./COMBINED/1D/FITS
+  - ./all/
 - and those are where you need to point the inspect_clear.pro code
   above.  
   - The default location for these is at Files/Spectra/ , though you can place
 them anywhere, and set the flag "specpath" when you run the inspection tool
 - Go to the top directory (where inspect_clear.pro) is, and run IDL
 - Run the tool by typing: inspect_clear,fieldname
-  - Where fieldname is the field you want to inspect, typed as a string.  For example:  inspect_clear,'GS1'
-    - Optional keywords are:
+  - Where fieldname is the field you want to inspect, typed as a
+  string.
+  - For example:  inspect_clear,'GS1'
+	- Optional keywords are:
         - specpath=fullpathtospectra
         - zsample=z, where z is the integer redshift you would like to inspect (if you type 4 or 5, you will inspect the
-        z=4 and 5 sources together, if you type 6, 7 or 8, you will inspect the z=6-8 sources together).
+        z=4 and 5 sources together, if you type 6, 7 or 8, you will
+        inspect the z=6-8 sources together).
 - The code automatically saves the results as a structure "result"
   - result.inspect is an integer, which is -1 if it hasn't been inspected, is set to 1 for good, and 0 for bad
   - result.notes is a string where you can store some short notes for each object
